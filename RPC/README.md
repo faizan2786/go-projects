@@ -18,13 +18,11 @@ RPC/
 
 ## Features
 
-- Basic RPC server implementation
+- Basic RPC server implementation with graceful shutdown
+- Two services with example RPC methods
 - Two client implementations:
   - Basic client with synchronous calls
-  - Advanced client with timeout handling
-- Graceful server shutdown
-- Demo RPC service with example methods
-- TCP communication over HTTP
+  - Advance client with asynchronous call and timeout handling
 
 ## Getting Started
 
@@ -56,7 +54,7 @@ go run main/client_with_timeout.go
 - Server runs on localhost:1298
 - Uses context for timeout handling
 - Implements graceful shutdown with OS signal handling
-- Demonstrates both simple and long-running RPC calls
+- Clients demonstrate both simple and long-running RPC calls
 
 ## Available RPC Methods
 
