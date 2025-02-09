@@ -8,10 +8,19 @@ This repository contains various Go projects demonstrating different aspects of 
 A demonstration of Remote Procedure Calls (RPC) in Go using the standard `net/rpc` package. Features include:
 - Basic RPC server and client implementations
 - Client with Timeout handling
-- Graceful shutdown for server
+- Graceful shutdown for server using `Cancellable Context`
 - RPC examples with multiple services
 
 [View RPC Project →](./RPC)
+
+### Concurrency Examples
+Collection of practical concurrency patterns in Go, including:
+- Event Loop implementation
+- Load Balancer with multiple workers
+- Replicated Servers with timeout handling
+- Demonstrates various Go concurrency primitives
+
+[View Concurrency Examples →](./concurrency-examples)
 
 ### Project Structure
 ```
@@ -21,6 +30,11 @@ projects/
 │   ├── server/         # Server implementation
 │   ├── main/           # Client implementations
 │   └── README.md       # Project documentation
+├── concurrency-examples/
+│   ├── event_loop.go
+│   ├── load_balancer.go
+│   ├── replicated_servers.go
+│   └── README.md
 └── README.md           # This file
 ```
 
