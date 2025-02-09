@@ -3,7 +3,15 @@
 
 This project folder contains practical examples demonstrating application of various concurrency patterns in Go.
 
-## Examples
+### Key Concepts Demonstrated
+
+- Goroutines & Channels (buffered and unbuffered)
+- Select (channel) statement
+- Timeout pattern
+- Distributing Workload
+- Fan-out/Fan-in pattern
+
+## Files
 
 ### Event Loop (`event_loop.go`)
 Implements an asynchronous event processing system:
@@ -37,11 +45,3 @@ For instance:
 ```bash
 go run load_balancer.go
 ```
-
-## Key Concepts Demonstrated
-
-- Goroutines & Channels (buffered and unbuffered)
-- Select statement
-- Timeout pattern
-- Distributed Workers
-- Fan-out/Fan-in pattern
