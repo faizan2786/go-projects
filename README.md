@@ -4,6 +4,14 @@ This repository contains various Go projects demonstrating different aspects of 
 
 ## Projects
 
+### Redis Clone
+A basic Redis server clone that:
+- Implements TCP server on Redis default port (6379)
+- Accepts multiple client connections
+- Handles RESP (Redis Serialization Protocol) for client communication
+
+[View Redis Clone Project →](./redis-clone)
+
 ### RPC
 A demonstration of Remote Procedure Calls (RPC) in Go using the standard `net/rpc` package. Features include:
 - Basic RPC server and client implementations
@@ -25,16 +33,26 @@ Collection of practical concurrency patterns in Go, including:
 ### Project Structure
 ```
 projects/
-├── RPC/                # RPC demonstration project
-│   ├── services/       # RPC service definitions
-│   ├── server/         # Server implementation
-│   ├── main/           # Client implementations
+│
+├── redis-clone/        # Redis server clone project
+│   ├── cmd/            # Executables
+│   │   └── server/     # TCP Server implementation
+│   ├── resp/           # RESP protocol serialisation/de-serialisation
 │   └── README.md       # Project documentation
+│
+├── RPC/                            # RPC demonstration project
+│   ├── cmd/                        # Executables
+│   │   ├── client/                 # Basic client implementation
+│   │   ├── client_with_timeout/    # Client with timeout handling
+│   │   └── server/                 # RPC server implementation
+│   ├── services/                   # RPC service definitions
+│
 ├── concurrency-examples/
 │   ├── event_loop.go
 │   ├── load_balancer.go
 │   ├── replicated_servers.go
 │   └── README.md
+│
 └── README.md           # This file
 ```
 

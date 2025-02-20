@@ -10,13 +10,15 @@ import (
 	"github.com/faizan2786/go-projects/RPC/services"
 )
 
+const timeout int = 3 // timeout in seconds
+
 func main() {
 
 	args := services.Args{}
 	var res string
 
 	// define a timeout context to handle request timeouts
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(timeout))
 	defer cancel()
 
 	client, err := server.NewClient()

@@ -1,6 +1,9 @@
 package services
 
-import "time"
+import (
+	"math/rand"
+	"time"
+)
 
 type RPCDemoService struct{} // service name
 
@@ -12,7 +15,9 @@ func (*RPCDemoService) GetServerMessage(args *Args, reply *string) error {
 
 // method to simulate long running call
 func (*RPCDemoService) SomeLongRunningProcess(args *Args, reply *string) error {
-	time.Sleep(5 * time.Second)
+
+	// sleep for a duration between 1 and 5 seconds
+	time.Sleep(time.Second * (1 + time.Duration(rand.Intn(6))))
 	*reply = "Success!"
 	return nil
 }

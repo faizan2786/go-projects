@@ -6,13 +6,17 @@ This project demonstrates the implementation of Remote Procedure Calls (RPC) in 
 
 ```
 RPC/
+├── cmd/
+│   ├── client/
+│   │   └── main.go                # Basic client implementation
+│   ├── client_with_timeout/
+│   │   └── main.go                # Client with timeout handling
+│   └── server/
+│       └── main.go                # RPC server implementation
 ├── services/
-│   └── demo.go         # RPC service definitions
-├── server/
-│   └── rpcserver.go    # RPC server implementation
-├── main/
-│   ├── client.go                # Basic client implementation
-│   └── client_with_timeout.go   # Client with timeout handling
+│   └── demo.go                    # RPC service definitions
+│   └── arith.go                   # Arithmetic service definitions
+│   └── types.go                   # Argument type definition
 └── README.md
 ```
 
@@ -26,27 +30,41 @@ RPC/
 
 ## Getting Started
 
-1. Clone the repository:
+Clone the repository:
 ```bash
 git clone https://github.com/faizan2786/go-projects.git
-cd RPC
+cd projects/RPC
 ```
 
-2. Start the server:
+Start the server:
 ```bash
-go run main/server.go
+go run cmd/server
 ```
 
-3. Run either client (in a separate terminal):
+Run either client (in a separate terminal):
 
-Basic client:
+- For basic client:
+  ```bash
+  go run cmd/client
+  ```
+
+- For client with timeout:
+  ```bash
+  go run cmd/client_with_timeout
+  ```
+
+You may also **first compile** the server and client binaries:
 ```bash
-go run main/client.go
+go build cmd/server/
+go build cmd/client/
+go build cmd/client_with_timeout/
 ```
 
-Client with timeout:
+Then **run** the binaries:
 ```bash
-go run main/client_with_timeout.go
+./server
+./client
+./client_with_timeout
 ```
 
 ## Implementation Details
