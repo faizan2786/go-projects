@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/faizan2786/go-projects/RPC/server"
+	"github.com/faizan2786/go-projects/RPC/internal/server"
 	"github.com/faizan2786/go-projects/RPC/services"
 )
 
