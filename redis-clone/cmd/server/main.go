@@ -41,14 +41,14 @@ func handleConn(conn net.Conn) {
 	reader := resp.NewRespIO(conn)
 
 	// deserialize and print the received data from the client
-	command, err := reader.ReadCommand()
+	commands, err := reader.ReadMessage()
 
 	if err != nil {
 		fmt.Println("Error while reading from client:", err)
 		return
 	}
 
-	fmt.Println("Client sent:", command)
+	fmt.Println("Client sent:", commands)
 
 	// ignore the request: always respond clients with a fixed string: "OK"
 	resp := []byte("+OK\r\n") // return a plain string in Redis Serialization Protocol

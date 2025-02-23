@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"strconv"
 )
 
 // This file defines RESP reader and writer
@@ -14,8 +15,9 @@ import (
 type RespCode byte
 
 const (
-	ARRAY RespCode = '*'
-	BULK  RespCode = '$' // bulk string type
+	ARRAY   RespCode = '*'
+	BULK    RespCode = '$' // bulk string type
+	INTEGER RespCode = ':'
 )
 
 type RespIO struct {
@@ -28,42 +30,99 @@ func NewRespIO(rd io.Reader) *RespIO {
 	return &RespIO{reader: bufio.NewReader(rd)}
 }
 
-// deserialize bytes (data) from the io Reader
-// (For simplicity, we only expect only a bulk string type with a single digit size data only)
-func (r *RespIO) ReadCommand() (string, error) {
+// deserialize RESP message into a set of strings
+func (r *RespIO) ReadMessage() ([]string, error) {
 
 	// Every command sent by redis-cli is of type Array.
 	// We are interested in the data which resided in the first element of this array
 
 	// Read the first byte
-	_, err := r.reader.ReadByte()
+	b, err := r.reader.ReadByte()
+	if err != nil {
+		return nil, err
+	}
+
+	if b != byte(ARRAY) {
+		return nil, fmt.Errorf("invalid first byte, expecting byte for array type ('*') only. Actual byte received:%s", string(b))
+	}
+
+	return r.readArray()
+}
+
+// read a RESP array
+func (r *RespIO) readArray() ([]string, error) {
+
+	values := make([]string, 0)
+
+	numElements, err := r.readInt()
+	if err != nil {
+		return nil, err
+	}
+
+	// read each element of the array
+	for i := 0; i < numElements; i++ {
+
+		// check if the next element is a bulk string
+		b, _ := r.reader.ReadByte()
+		if b != byte(BULK) && b != byte(INTEGER) {
+			return nil, fmt.Errorf("invalid first byte, expecting an array element to be a bulk string('$') or an integer(':') type only. Actual byte received:%s", string(b))
+		}
+
+		var val string
+		var err error
+		switch RespCode(b) {
+		case BULK:
+			// read the size of the string
+			_, err = r.readInt()
+			if err != nil {
+				return nil, err
+			}
+			// read the string
+			val, err = r.readLine()
+		case INTEGER:
+			// read the integer
+			var intVal int
+			intVal, err = r.readInt()
+			if err == nil {
+				val = strconv.Itoa(intVal)
+			}
+		}
+
+		if err != nil {
+			return nil, err
+		}
+
+		values = append(values, val)
+	}
+
+	return values, nil
+}
+
+// read the next integer
+func (r *RespIO) readInt() (int, error) {
+	strNum, err := r.readLine()
+	if err != nil {
+		return 0, err
+	}
+
+	num, err := strconv.ParseInt(strNum, 10, 64)
+	if err != nil {
+		return 0, err
+	}
+	return int(num), nil
+}
+
+// read the RESP buffer up to the next line (i.e. next \r)
+// returns the line as string (without \r\n)
+func (r *RespIO) readLine() (string, error) {
+	line, err := r.reader.ReadString('\r')
 	if err != nil {
 		return "", err
 	}
 
-	// skip till the first array element
-	r.reader.ReadBytes('\n')
-
-	// now, parse the actual command...
-
-	// read the next byte and verify if it a bulk string type
-	b, _ := r.reader.ReadByte()
-
-	if b != byte(BULK) {
-		return "", fmt.Errorf("invalid first byte, expecting byte for bulk strings only.Actual byte received:%s", string(b))
-	}
-
-	// read the size of the string (limiting to 1 digit size only )
-	b, _ = r.reader.ReadByte()
-	strSize := int(b - '0') // convert ASCII byte code to its int value
-
-	// skip next two bytes for \r\n
-	r.reader.ReadByte()
+	// skip the next byte (i.e. \n)
 	r.reader.ReadByte()
 
-	// read the next bytes of size = strSize
-	bytes := make([]byte, strSize)
-	r.reader.Read(bytes)
-
-	return string(bytes), nil
+	// strip the trailing \r from the line
+	return line[:len(line)-1], nil
 }
