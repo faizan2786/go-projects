@@ -18,6 +18,7 @@ const (
 	ARRAY   RespCode = '*'
 	BULK    RespCode = '$' // bulk string type
 	INTEGER RespCode = ':'
+	STRING  RespCode = '+' // simple string type
 )
 
 type RespIO struct {
@@ -64,21 +65,19 @@ func (r *RespIO) readArray() ([]string, error) {
 
 		// check if the next element is a bulk string
 		b, _ := r.reader.ReadByte()
-		if b != byte(BULK) && b != byte(INTEGER) {
-			return nil, fmt.Errorf("invalid first byte, expecting an array element to be a bulk string('$') or an integer(':') type only. Actual byte received:%s", string(b))
-		}
 
 		var val string
 		var err error
 		switch RespCode(b) {
 		case BULK:
-			// read the size of the string
-			_, err = r.readInt()
+			// read the length of the string
+			var length int
+			length, err = r.readInt()
 			if err != nil {
 				return nil, err
 			}
 			// read the string
-			val, err = r.readLine()
+			val, err = r.readBulkString(length)
 		case INTEGER:
 			// read the integer
 			var intVal int
@@ -86,6 +85,11 @@ func (r *RespIO) readArray() ([]string, error) {
 			if err == nil {
 				val = strconv.Itoa(intVal)
 			}
+		case STRING:
+			// read the string
+			val, err = r.readLine()
+		default:
+			return nil, fmt.Errorf("unsupported RESP type code: %v", b)
 		}
 
 		if err != nil {
@@ -125,4 +129,22 @@ func (r *RespIO) readLine() (string, error) {
 
 	// strip the trailing \r from the line
 	return line[:len(line)-1], nil
+}
+
+// read a bulk string of the specified length
+func (r *RespIO) readBulkString(length int) (string, error) {
+	// create a buffer to read the bulk string
+	bulk := make([]byte, length)
+
+	// read the string
+	_, err := r.reader.Read(bulk)
+	if err != nil {
+		return "", err
+	}
+
+	// skip CRLF after the bulk string
+	r.reader.ReadByte()
+	r.reader.ReadByte()
+
+	return string(bulk), nil
 }
