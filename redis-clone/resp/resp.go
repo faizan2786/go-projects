@@ -76,6 +76,12 @@ func (r *RespIO) readArray() ([]string, error) {
 			if err != nil {
 				return nil, err
 			}
+
+			if length == -1 {
+				// null bulk string
+				val = ""
+				break
+			}
 			// read the string
 			val, err = r.readBulkString(length)
 		case INTEGER:
@@ -143,8 +149,15 @@ func (r *RespIO) readBulkString(length int) (string, error) {
 	}
 
 	// skip CRLF after the bulk string
-	r.reader.ReadByte()
-	r.reader.ReadByte()
+	_, err = r.reader.ReadByte()
+	if err != nil {
+		return "", err
+	}
+
+	_, err = r.reader.ReadByte()
+	if err != nil {
+		return "", err
+	}
 
 	return string(bulk), nil
 }
